@@ -11,6 +11,10 @@ export class UserRepository {
     return this.client.user.findUnique({ where: { email } });
   }
 
+  findIdentityById(id: string) {
+    return this.client.user.findUnique({ where: { id }, select: { id: true, email: true } });
+  }
+
   create(input: { email: string; passwordHash: string; displayName: string }) {
     return this.client.user.create({ data: input });
   }

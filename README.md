@@ -34,7 +34,17 @@ The local database target is PostgreSQL on port `5432`, database `postgres`. The
 
 ## Data model
 
-The initial schema defines users, projects, project memberships, tasks, comments, and attachment metadata. File bytes are not stored in PostgreSQL; attachments hold a storage key for a storage provider added in the collaboration milestone.
+The initial schema defines users, projects, project memberships, project invitations, tasks, comments, and attachment metadata. File bytes are not stored in PostgreSQL; attachments hold a storage key for a storage provider added in the collaboration milestone.
+
+## Projects and membership
+
+- `POST /api/projects`, `GET /api/projects`, and `GET /api/projects/:projectId` create and list active projects or read a member's project.
+- `PATCH /api/projects/:projectId` updates project details; `DELETE /api/projects/:projectId` archives it.
+- `GET /api/projects/:projectId/members` lists members. The owner can change member roles; owners and admins can remove members, with admins limited to regular members.
+- `POST /api/projects/:projectId/invitations` creates an email-bound invitation. It returns a single-use token for the caller to deliver to the invitee; only a SHA-256 hash is stored. The token expires after seven days.
+- An authenticated invitee accepts with `POST /api/invitations/:token/accept`. The account email must match the invitation email.
+
+Owners and admins can create, list, and revoke invitations. Project data and membership operations are scoped to project members.
 
 ## Authentication
 
@@ -51,7 +61,7 @@ Passwords are hashed with bcrypt. Access tokens are signed with HS256 and checke
 npm test
 ```
 
-The suite validates the Prisma schema, builds the TypeScript project, then runs the foundation, persistence, authentication, and profile tests. Future milestones add tests for each feature before that milestone is considered complete.
+The suite validates the Prisma schema, builds the TypeScript project, then runs the foundation, persistence, authentication, profile, project, membership, and invitation tests. Future milestones add tests for each feature before that milestone is considered complete.
 
 ## Error response
 

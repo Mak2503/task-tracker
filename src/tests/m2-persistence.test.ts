@@ -106,12 +106,12 @@ test("repositories use scoped queries and stable ordering for domain lookups", a
     {
       model: "project",
       method: "findFirst",
-      args: { where: { id: "project-1", members: { some: { userId: "user-1" } } } },
+      args: { where: { id: "project-1", archivedAt: null, members: { some: { userId: "user-1" } } } },
     },
     {
       model: "project",
       method: "findMany",
-      args: { where: { members: { some: { userId: "user-1" } } }, orderBy: { createdAt: "desc" } },
+      args: { where: { archivedAt: null, members: { some: { userId: "user-1" } } }, orderBy: { createdAt: "desc" } },
     },
     { model: "task", method: "findUnique", args: { where: { id: "task-1" } } },
     {

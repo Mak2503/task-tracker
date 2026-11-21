@@ -69,13 +69,12 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 
 ## M4 — Projects and team membership
 
-**Status:** Next
-
-**Status:** Pending
+**Status:** Complete
 
 **Scope**
 - Create, list, view, update, and archive projects.
-- Invite members and manage project membership and roles.
+- Invite members by email, accept invitations, and manage pending invitations.
+- List members and enforce owner/admin/member permissions for role changes and removals.
 - Enforce project membership and role checks in services.
 - Test membership invitation, role changes, and project isolation.
 
@@ -83,13 +82,14 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 - Project data is visible only to authorized members.
 - Membership changes are validated and role-restricted.
 - Automated tests prove members can access permitted projects while non-members cannot.
+- Initial project/invitation migration is applied to the configured local PostgreSQL database.
 
 **Tests**
-- Cover project CRUD, membership lifecycle, role permissions, and cross-project access denial.
+- Cover transactional project/owner creation, project isolation, invitation expiry/email matching, hashed single-use tokens, and role/removal permissions.
 
 ## M5 — Task management
 
-**Status:** Pending
+**Status:** Next
 
 **Scope**
 - Create, read, update, delete/archive tasks within projects.
