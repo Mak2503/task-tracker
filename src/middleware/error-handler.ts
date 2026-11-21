@@ -4,7 +4,7 @@ import { AppError } from "../errors/app-error.js";
 
 export const errorHandler: ErrorRequestHandler = (error: unknown, _req, res, _next) => {
   const appError = error instanceof AppError ? error : new AppError("An unexpected error occurred");
-  if (env.NODE_ENV !== "test") {
+  if (!(error instanceof AppError) && env.NODE_ENV !== "test") {
     console.error(error);
   }
 
