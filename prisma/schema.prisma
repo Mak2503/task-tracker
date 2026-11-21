@@ -78,6 +78,7 @@ model Task {
   projectId   String      @map("project_id") @db.Uuid
   creatorId   String      @map("creator_id") @db.Uuid
   assigneeId  String?     @map("assignee_id") @db.Uuid
+  archivedAt  DateTime?   @map("archived_at") @db.Timestamptz(3)
   createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
   project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -86,7 +87,7 @@ model Task {
   comments    Comment[]
   attachments Attachment[]
 
-  @@index([projectId, status, createdAt])
+  @@index([projectId, archivedAt, status, createdAt])
   @@index([assigneeId, status, dueDate])
   @@map("tasks")
 }

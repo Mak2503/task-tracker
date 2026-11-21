@@ -89,7 +89,7 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 
 ## M5 — Task management
 
-**Status:** Next
+**Status:** Complete
 
 **Scope**
 - Create, read, update, delete/archive tasks within projects.
@@ -102,13 +102,14 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 - Task mutations enforce project membership and assignment rules.
 - Filters and sorting use an allowlist and pagination has stable ordering.
 - Automated tests cover task access rules, status transitions, filtering, sorting, pagination, and search.
+- Task archival migration is applied to the configured local PostgreSQL database.
 
 **Tests**
 - Verify task CRUD, assignment to project members, due dates, completion, list scoping, filter/sort allowlists, and pagination boundaries.
 
 ## M6 — Comments and attachments
 
-**Status:** Pending
+**Status:** Next
 
 **Scope**
 - Add, list, edit, and delete task comments with author and timestamp metadata.

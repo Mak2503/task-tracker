@@ -46,6 +46,15 @@ The initial schema defines users, projects, project memberships, project invitat
 
 Owners and admins can create, list, and revoke invitations. Project data and membership operations are scoped to project members.
 
+## Tasks
+
+- `POST /api/projects/:projectId/tasks` creates a task; optional assignees must be members of that project.
+- `GET /api/projects/:projectId/tasks` lists project tasks. Supported query parameters: `status`, `assigneeId` (UUID or `unassigned`), `search`, `dueAfter`, `dueBefore`, `sortBy`, `sortOrder`, `page`, and `pageSize`.
+- `GET /api/tasks/assigned-to-me` lists the signed-in user's tasks across active projects where they remain a member.
+- `GET`, `PATCH`, and `DELETE /api/projects/:projectId/tasks/:taskId` read, update, and archive a task. `PATCH` supports title, description, assignee, due date, and status (`OPEN`, `IN_PROGRESS`, `COMPLETED`).
+
+Sorting is allowlisted and uses task ID as a tie-breaker. Page size is limited to 100. Task deletion is a soft archive.
+
 ## Authentication
 
 - `POST /api/auth/register` creates an account.
@@ -61,7 +70,7 @@ Passwords are hashed with bcrypt. Access tokens are signed with HS256 and checke
 npm test
 ```
 
-The suite validates the Prisma schema, builds the TypeScript project, then runs the foundation, persistence, authentication, profile, project, membership, and invitation tests. Future milestones add tests for each feature before that milestone is considered complete.
+The suite validates the Prisma schema, builds the TypeScript project, then runs the foundation, persistence, authentication, profile, project, membership, invitation, and task tests. Future milestones add tests for each feature before that milestone is considered complete.
 
 ## Error response
 

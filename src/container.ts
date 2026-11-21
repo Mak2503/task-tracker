@@ -12,6 +12,9 @@ import { ProjectMembershipRepository } from "./repositories/project-membership.r
 import { ProjectInvitationRepository } from "./repositories/project-invitation.repository.js";
 import { ProjectService } from "./projects/project.service.js";
 import { ProjectController } from "./controllers/project.controller.js";
+import { TaskRepository } from "./repositories/task.repository.js";
+import { TaskService } from "./tasks/task.service.js";
+import { TaskController } from "./controllers/task.controller.js";
 
 const userRepository = new UserRepository(prismaClient);
 const sessionRepository = new AuthSessionRepository(prismaClient);
@@ -32,3 +35,8 @@ export const projectService = new ProjectService(
   userRepository,
 );
 export const projectController = new ProjectController(projectService);
+export const taskController = new TaskController(new TaskService(
+  new TaskRepository(prismaClient),
+  new ProjectRepository(prismaClient),
+  new ProjectMembershipRepository(prismaClient),
+));

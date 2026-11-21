@@ -15,6 +15,8 @@ type Call = { model: string; method: string; args?: unknown };
 function createRepositoryClient(calls: Call[]): PrismaClient {
   const spy = (model: string, method: string) => async (args?: unknown) => {
     calls.push({ model, method, args });
+    if (method === "findMany") return [];
+    if (method === "count") return 0;
     return null;
   };
 
@@ -28,6 +30,7 @@ function createRepositoryClient(calls: Call[]): PrismaClient {
     task: {
       findUnique: spy("task", "findUnique"),
       findMany: spy("task", "findMany"),
+      count: spy("task", "count"),
     },
     comment: { findMany: spy("comment", "findMany") },
     attachment: { findMany: spy("attachment", "findMany") },
@@ -94,8 +97,9 @@ test("repositories use scoped queries and stable ordering for domain lookups", a
   await new ProjectRepository(client).findForMember("project-1", "user-1");
   await new ProjectRepository(client).listForMember("user-1");
   await new TaskRepository(client).findById("task-1");
-  await new TaskRepository(client).listForProject("project-1");
-  await new TaskRepository(client).listAssignedTo("user-1");
+  const query = { sortBy: "createdAt" as const, sortOrder: "desc" as const, page: 1, pageSize: 20 };
+  await new TaskRepository(client).listForProject("project-1", query);
+  await new TaskRepository(client).listAssignedTo("user-1", query);
   await new CommentRepository(client).listForTask("task-1");
   await new AttachmentRepository(client).listForTask("task-1");
 
@@ -117,12 +121,32 @@ test("repositories use scoped queries and stable ordering for domain lookups", a
     {
       model: "task",
       method: "findMany",
-      args: { where: { projectId: "project-1" }, orderBy: [{ createdAt: "desc" }, { id: "asc" }] },
+      args: {
+        where: { projectId: "project-1", archivedAt: null },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: 0,
+        take: 20,
+      },
+    },
+    {
+      model: "task",
+      method: "count",
+      args: { where: { projectId: "project-1", archivedAt: null } },
     },
     {
       model: "task",
       method: "findMany",
-      args: { where: { assigneeId: "user-1" }, orderBy: [{ dueDate: "asc" }, { id: "asc" }] },
+      args: {
+        where: { assigneeId: "user-1", project: { archivedAt: null, members: { some: { userId: "user-1" } } }, archivedAt: null },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: 0,
+        take: 20,
+      },
+    },
+    {
+      model: "task",
+      method: "count",
+      args: { where: { assigneeId: "user-1", project: { archivedAt: null, members: { some: { userId: "user-1" } } }, archivedAt: null } },
     },
     {
       model: "comment",

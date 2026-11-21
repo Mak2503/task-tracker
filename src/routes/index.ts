@@ -3,7 +3,7 @@ import { healthCheck } from "../controllers/health.controller.js";
 import { DatabaseHealthController } from "../controllers/database-health.controller.js";
 import { DatabaseService } from "../database/database.service.js";
 import { prismaClient } from "../database/prisma-client.js";
-import { authController, authenticationMiddleware, profileController, projectController } from "../container.js";
+import { authController, authenticationMiddleware, profileController, projectController, taskController } from "../container.js";
 
 const router = Router();
 
@@ -26,5 +26,11 @@ router.post("/projects/:projectId/invitations", authenticationMiddleware.authent
 router.get("/projects/:projectId/invitations", authenticationMiddleware.authenticate, projectController.listInvitations);
 router.delete("/projects/:projectId/invitations/:invitationId", authenticationMiddleware.authenticate, projectController.revokeInvitation);
 router.post("/invitations/:token/accept", authenticationMiddleware.authenticate, projectController.acceptInvitation);
+router.get("/tasks/assigned-to-me", authenticationMiddleware.authenticate, taskController.listAssignedToMe);
+router.post("/projects/:projectId/tasks", authenticationMiddleware.authenticate, taskController.create);
+router.get("/projects/:projectId/tasks", authenticationMiddleware.authenticate, taskController.listForProject);
+router.get("/projects/:projectId/tasks/:taskId", authenticationMiddleware.authenticate, taskController.get);
+router.patch("/projects/:projectId/tasks/:taskId", authenticationMiddleware.authenticate, taskController.update);
+router.delete("/projects/:projectId/tasks/:taskId", authenticationMiddleware.authenticate, taskController.archive);
 
 export default router;
