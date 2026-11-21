@@ -101,7 +101,7 @@ test("repositories use scoped queries and stable ordering for domain lookups", a
   await new TaskRepository(client).listForProject("project-1", query);
   await new TaskRepository(client).listAssignedTo("user-1", query);
   await new CommentRepository(client).listForTask("task-1");
-  await new AttachmentRepository(client).listForTask("task-1");
+  await new AttachmentRepository(client).listAvailableForTask("task-1");
 
   assert.deepEqual(calls, [
     { model: "user", method: "findUnique", args: { where: { id: "user-1" } } },
@@ -151,12 +151,16 @@ test("repositories use scoped queries and stable ordering for domain lookups", a
     {
       model: "comment",
       method: "findMany",
-      args: { where: { taskId: "task-1" }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] },
+      args: {
+        where: { taskId: "task-1" },
+        include: { author: { select: { id: true, displayName: true } } },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      },
     },
     {
       model: "attachment",
       method: "findMany",
-      args: { where: { taskId: "task-1" }, orderBy: [{ createdAt: "desc" }, { id: "asc" }] },
+      args: { where: { taskId: "task-1", status: "AVAILABLE" }, orderBy: [{ createdAt: "desc" }, { id: "asc" }] },
     },
   ]);
 });

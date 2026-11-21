@@ -19,6 +19,12 @@ enum TaskStatus {
   COMPLETED
 }
 
+enum AttachmentStatus {
+  PENDING
+  AVAILABLE
+  FAILED
+}
+
 model User {
   id              String          @id @default(uuid()) @db.Uuid
   email           String          @unique @db.VarChar(320)
@@ -114,11 +120,13 @@ model Attachment {
   storageKey   String   @unique @map("storage_key") @db.VarChar(512)
   taskId       String   @map("task_id") @db.Uuid
   uploadedById String   @map("uploaded_by_id") @db.Uuid
+  status       AttachmentStatus @default(PENDING)
+  uploadExpiresAt DateTime @map("upload_expires_at") @db.Timestamptz(3)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   uploadedBy   User     @relation("AttachmentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
 
-  @@index([taskId, createdAt])
+  @@index([taskId, status, createdAt])
   @@map("attachments")
 }
 

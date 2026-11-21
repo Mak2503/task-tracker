@@ -109,7 +109,7 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 
 ## M6 — Comments and attachments
 
-**Status:** Next
+**Status:** Complete
 
 **Scope**
 - Add, list, edit, and delete task comments with author and timestamp metadata.
@@ -121,35 +121,36 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 - Only authorized project members can access task collaboration data.
 - Upload size/type constraints and storage configuration are documented.
 - Automated tests cover comment permissions and attachment metadata, limits, and denied access.
+- Attachment status migration is applied to the configured local PostgreSQL database; local MinIO setup is documented.
 
 **Tests**
 - Verify comment create/edit/delete ownership and project membership.
 - Exercise attachment type/size checks, metadata persistence, storage errors, and authorized download access.
 
-## M7 — Optional notifications and AI assistance
+## M7 — Real-time notifications
 
-**Status:** Pending
+**Status:** Complete
 
 **Scope**
-- Publish task assignment and update events using Server-Sent Events or WebSockets.
-- Optionally generate task descriptions or summaries through a provider abstraction.
-- Test event delivery isolation, reconnect behavior, and AI provider success/failure.
+- Publish task assignment and update events over authenticated Server-Sent Events.
+- Scope notifications to current project members and the assigned user.
+- Support heartbeat comments, bounded reconnect replay, and clean disconnects.
 
 **Exit criteria**
 - Notifications are scoped to authorized users and do not block normal task operations.
-- AI integration is opt-in, configured through environment variables, and handles provider failures safely.
-- Automated tests verify notification authorization and graceful AI provider failures.
+- Automated tests verify notification authorization, reconnect replay, and subscriber cleanup.
 
 **Tests**
 - Verify assigned/updated events reach only authorized users and reconnect behavior is stable.
-- Test AI response validation, timeout/provider errors, and disabled configuration.
+- Verify expired replay cursors and disconnected streams are handled safely.
 
 ## M8 — API and operational readiness
 
-**Status:** Pending
+**Status:** Next
 
 **Scope**
 - Publish OpenAPI documentation and examples for the completed endpoints.
+- Optionally add AI generated task descriptions or summaries through a provider abstraction.
 - Add focused automated coverage for authentication, authorization, task workflows, and collaboration.
 - Document deployment configuration, migrations, logging, and backup expectations.
 - Run end-to-end smoke tests for the documented user workflows.

@@ -30,10 +30,34 @@ if (!Number.isInteger(jwtAccessTokenTtlSeconds) || jwtAccessTokenTtlSeconds < 60
   throw new Error("JWT_ACCESS_TOKEN_TTL_SECONDS must be an integer between 60 and 3600");
 }
 
+const objectStorageEndpoint = process.env.OBJECT_STORAGE_ENDPOINT ?? "http://localhost:9000";
+try {
+  const parsedStorageEndpoint = new URL(objectStorageEndpoint);
+  if (!["http:", "https:"].includes(parsedStorageEndpoint.protocol)) throw new Error();
+} catch {
+  throw new Error("OBJECT_STORAGE_ENDPOINT must be a valid HTTP or HTTPS URL");
+}
+
+const objectStorageBucket = process.env.OBJECT_STORAGE_BUCKET ?? "taskmaster";
+if (!/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(objectStorageBucket)) {
+  throw new Error("OBJECT_STORAGE_BUCKET must be a valid S3 bucket name");
+}
+
+const forcePathStyleInput = process.env.OBJECT_STORAGE_FORCE_PATH_STYLE ?? "true";
+if (!["true", "false"].includes(forcePathStyleInput.toLowerCase())) {
+  throw new Error("OBJECT_STORAGE_FORCE_PATH_STYLE must be true or false");
+}
+
 export const env = {
   PORT: port,
   NODE_ENV: nodeEnv,
   DATABASE_URL: databaseUrl,
   JWT_SECRET: jwtSecret,
   JWT_ACCESS_TOKEN_TTL_SECONDS: jwtAccessTokenTtlSeconds,
+  OBJECT_STORAGE_ENDPOINT: objectStorageEndpoint,
+  OBJECT_STORAGE_BUCKET: objectStorageBucket,
+  OBJECT_STORAGE_REGION: process.env.OBJECT_STORAGE_REGION ?? "us-east-1",
+  OBJECT_STORAGE_ACCESS_KEY: process.env.OBJECT_STORAGE_ACCESS_KEY ?? "taskmaster-local",
+  OBJECT_STORAGE_SECRET_KEY: process.env.OBJECT_STORAGE_SECRET_KEY ?? "taskmaster-local-secret",
+  OBJECT_STORAGE_FORCE_PATH_STYLE: forcePathStyleInput.toLowerCase() === "true",
 };

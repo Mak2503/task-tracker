@@ -1,0 +1,26 @@
+services:
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-09-06T17-38-46Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: taskmaster-local
+      MINIO_ROOT_PASSWORD: taskmaster-local-secret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
+  minio-init:
+    image: quay.io/minio/mc:RELEASE.2024-11-21T17-21-54Z
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c 'until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do sleep 1; done;
+      mc mb --ignore-existing local/taskmaster'
+    environment:
+      MINIO_ROOT_USER: taskmaster-local
+      MINIO_ROOT_PASSWORD: taskmaster-local-secret
+
+volumes:
+  minio-data:
