@@ -2,10 +2,12 @@ import app from "./app.js";
 import { env } from "./config/env.js";
 import { DatabaseService } from "./database/database.service.js";
 import { prismaClient } from "./database/prisma-client.js";
+import { tokenService } from "./container.js";
 
 const database = new DatabaseService(prismaClient);
 
 async function startServer(): Promise<void> {
+  tokenService.assertConfiguration();
   await database.connect();
   const server = app.listen(env.PORT, () => {
     console.log(`Server running at http://localhost:${env.PORT}`);

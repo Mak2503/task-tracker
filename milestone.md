@@ -47,7 +47,7 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 
 ## M3 — Authentication and user profiles
 
-**Status:** Next
+**Status:** Complete
 
 **Scope**
 - Register users with normalized unique email addresses and securely hashed passwords.
@@ -61,12 +61,15 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 - Passwords are never stored or returned in plain text.
 - Profile changes can only be made by the authenticated user.
 - Automated tests cover valid and invalid credentials, duplicate registration, token lifecycle, and profile ownership.
+- The auth-session migration is applied to the configured local PostgreSQL database.
 
 **Tests**
 - Exercise authentication and profile endpoints with valid, invalid, expired, and revoked credentials.
 - Verify passwords are hashed and never appear in API responses.
 
 ## M4 — Projects and team membership
+
+**Status:** Next
 
 **Status:** Pending
 

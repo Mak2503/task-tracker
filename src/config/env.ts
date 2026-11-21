@@ -20,8 +20,20 @@ try {
   throw new Error("DATABASE_URL must be a valid PostgreSQL connection URL");
 }
 
+const jwtSecret = process.env.JWT_SECRET ?? "";
+if (jwtSecret && Buffer.byteLength(jwtSecret, "utf8") < 32) {
+  throw new Error("JWT_SECRET must be at least 32 bytes");
+}
+
+const jwtAccessTokenTtlSeconds = Number(process.env.JWT_ACCESS_TOKEN_TTL_SECONDS ?? 900);
+if (!Number.isInteger(jwtAccessTokenTtlSeconds) || jwtAccessTokenTtlSeconds < 60 || jwtAccessTokenTtlSeconds > 3600) {
+  throw new Error("JWT_ACCESS_TOKEN_TTL_SECONDS must be an integer between 60 and 3600");
+}
+
 export const env = {
   PORT: port,
   NODE_ENV: nodeEnv,
   DATABASE_URL: databaseUrl,
+  JWT_SECRET: jwtSecret,
+  JWT_ACCESS_TOKEN_TTL_SECONDS: jwtAccessTokenTtlSeconds,
 };
