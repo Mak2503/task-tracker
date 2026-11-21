@@ -1,0 +1,119 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TaskMaster API",
+    "version": "1.0.0",
+    "description": "Collaborative task tracking API. Authenticated routes require a bearer access token."
+  },
+  "servers": [{ "url": "http://localhost:3000/api" }],
+  "tags": [
+    { "name": "Health" }, { "name": "Authentication" }, { "name": "Profile" },
+    { "name": "Projects" }, { "name": "Tasks" }, { "name": "Comments" },
+    { "name": "Attachments" }, { "name": "Notifications" }
+  ],
+  "paths": {
+    "/health": { "get": { "tags": ["Health"], "summary": "Liveness check", "responses": { "200": { "$ref": "#/components/responses/Success" } } } },
+    "/health/ready": { "get": { "tags": ["Health"], "summary": "Database readiness check", "responses": { "200": { "$ref": "#/components/responses/Success" }, "503": { "$ref": "#/components/responses/Error" } } } },
+    "/auth/register": { "post": { "tags": ["Authentication"], "summary": "Register an account", "requestBody": { "$ref": "#/components/requestBodies/Register" }, "responses": { "201": { "$ref": "#/components/responses/Success" }, "400": { "$ref": "#/components/responses/Error" }, "409": { "$ref": "#/components/responses/Error" } } } },
+    "/auth/login": { "post": { "tags": ["Authentication"], "summary": "Create a bearer session", "requestBody": { "$ref": "#/components/requestBodies/Login" }, "responses": { "200": { "$ref": "#/components/responses/Success" }, "401": { "$ref": "#/components/responses/Error" } } } },
+    "/auth/logout": { "post": { "tags": ["Authentication"], "security": [{ "bearerAuth": [] }], "summary": "Revoke the current session", "responses": { "204": { "description": "Session revoked" }, "401": { "$ref": "#/components/responses/Error" } } } },
+    "/users/me": {
+      "get": { "tags": ["Profile"], "security": [{ "bearerAuth": [] }], "summary": "Get current profile", "responses": { "200": { "$ref": "#/components/responses/Success" }, "401": { "$ref": "#/components/responses/Error" } } },
+      "patch": { "tags": ["Profile"], "security": [{ "bearerAuth": [] }], "summary": "Update current profile", "requestBody": { "$ref": "#/components/requestBodies/ProfileUpdate" }, "responses": { "200": { "$ref": "#/components/responses/Success" }, "400": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/projects": {
+      "post": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Create a project", "requestBody": { "$ref": "#/components/requestBodies/ProjectCreate" }, "responses": { "201": { "$ref": "#/components/responses/Success" }, "400": { "$ref": "#/components/responses/Error" } } },
+      "get": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "List projects for current user", "responses": { "200": { "$ref": "#/components/responses/Success" } } }
+    },
+    "/projects/{projectId}": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
+      "get": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Get a project", "responses": { "200": { "$ref": "#/components/responses/Success" }, "404": { "$ref": "#/components/responses/Error" } } },
+      "patch": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Update project details", "requestBody": { "$ref": "#/components/requestBodies/ProjectUpdate" }, "responses": { "200": { "$ref": "#/components/responses/Success" }, "403": { "$ref": "#/components/responses/Error" } } },
+      "delete": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Archive a project", "responses": { "204": { "description": "Project archived" }, "403": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/projects/{projectId}/members": { "parameters": [{ "$ref": "#/components/parameters/ProjectId" }], "get": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "List project members", "responses": { "200": { "$ref": "#/components/responses/Success" } } } },
+    "/projects/{projectId}/members/{userId}": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/UserId" }],
+      "patch": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Change member role", "requestBody": { "$ref": "#/components/requestBodies/MemberRole" }, "responses": { "200": { "$ref": "#/components/responses/Success" }, "403": { "$ref": "#/components/responses/Error" } } },
+      "delete": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Remove a project member", "responses": { "204": { "description": "Member removed" }, "403": { "$ref": "#/components/responses/Error" } } }
+    },
+    "/projects/{projectId}/invitations": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
+      "post": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Invite a user by email", "requestBody": { "$ref": "#/components/requestBodies/Invitation" }, "responses": { "201": { "$ref": "#/components/responses/Success" }, "403": { "$ref": "#/components/responses/Error" } } },
+      "get": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "List project invitations", "responses": { "200": { "$ref": "#/components/responses/Success" } } }
+    },
+    "/projects/{projectId}/invitations/{invitationId}": { "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/InvitationId" }], "delete": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Revoke a pending invitation", "responses": { "204": { "description": "Invitation revoked" } } } },
+    "/invitations/{token}/accept": { "parameters": [{ "name": "token", "in": "path", "required": true, "schema": { "type": "string", "minLength": 32, "maxLength": 100 } }], "post": { "tags": ["Projects"], "security": [{ "bearerAuth": [] }], "summary": "Accept an email-matched invitation", "responses": { "200": { "$ref": "#/components/responses/Success" }, "403": { "$ref": "#/components/responses/Error" } } } },
+    "/tasks/assigned-to-me": { "get": { "tags": ["Tasks"], "security": [{ "bearerAuth": [] }], "summary": "List tasks assigned to current user", "parameters": [{ "$ref": "#/components/parameters/TaskStatus" }, { "$ref": "#/components/parameters/TaskAssignee" }, { "$ref": "#/components/parameters/TaskSearch" }, { "$ref": "#/components/parameters/TaskDueAfter" }, { "$ref": "#/components/parameters/TaskDueBefore" }, { "$ref": "#/components/parameters/TaskSortBy" }, { "$ref": "#/components/parameters/TaskSortOrder" }, { "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }], "responses": { "200": { "$ref": "#/components/responses/Success" } } } },
+    "/projects/{projectId}/tasks": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
+      "post": { "tags": ["Tasks"], "security": [{ "bearerAuth": [] }], "summary": "Create a project task", "requestBody": { "$ref": "#/components/requestBodies/TaskCreate" }, "responses": { "201": { "$ref": "#/components/responses/Success" }, "400": { "$ref": "#/components/responses/Error" } } },
+      "get": { "tags": ["Tasks"], "security": [{ "bearerAuth": [] }], "summary": "Filter and search project tasks", "parameters": [{ "$ref": "#/components/parameters/TaskStatus" }, { "$ref": "#/components/parameters/TaskAssignee" }, { "$ref": "#/components/parameters/TaskSearch" }, { "$ref": "#/components/parameters/TaskDueAfter" }, { "$ref": "#/components/parameters/TaskDueBefore" }, { "$ref": "#/components/parameters/TaskSortBy" }, { "$ref": "#/components/parameters/TaskSortOrder" }, { "$ref": "#/components/parameters/Page" }, { "$ref": "#/components/parameters/PageSize" }], "responses": { "200": { "$ref": "#/components/responses/Success" } } }
+    },
+    "/projects/{projectId}/tasks/{taskId}": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/TaskId" }],
+      "get": { "tags": ["Tasks"], "security": [{ "bearerAuth": [] }], "summary": "Get a task", "responses": { "200": { "$ref": "#/components/responses/Success" }, "404": { "$ref": "#/components/responses/Error" } } },
+      "patch": { "tags": ["Tasks"], "security": [{ "bearerAuth": [] }], "summary": "Update a task", "requestBody": { "$ref": "#/components/requestBodies/TaskUpdate" }, "responses": { "200": { "$ref": "#/components/responses/Success" }, "400": { "$ref": "#/components/responses/Error" } } },
+      "delete": { "tags": ["Tasks"], "security": [{ "bearerAuth": [] }], "summary": "Archive a task", "responses": { "204": { "description": "Task archived" } } }
+    },
+    "/projects/{projectId}/tasks/{taskId}/comments": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/TaskId" }],
+      "post": { "tags": ["Comments"], "security": [{ "bearerAuth": [] }], "summary": "Add a task comment", "requestBody": { "$ref": "#/components/requestBodies/Comment" }, "responses": { "201": { "$ref": "#/components/responses/Success" }, "400": { "$ref": "#/components/responses/Error" } } },
+      "get": { "tags": ["Comments"], "security": [{ "bearerAuth": [] }], "summary": "List task comments", "responses": { "200": { "$ref": "#/components/responses/Success" } } }
+    },
+    "/projects/{projectId}/tasks/{taskId}/comments/{commentId}": { "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/TaskId" }, { "$ref": "#/components/parameters/CommentId" }], "patch": { "tags": ["Comments"], "security": [{ "bearerAuth": [] }], "summary": "Edit an authored comment", "requestBody": { "$ref": "#/components/requestBodies/Comment" }, "responses": { "200": { "$ref": "#/components/responses/Success" }, "403": { "$ref": "#/components/responses/Error" } } }, "delete": { "tags": ["Comments"], "security": [{ "bearerAuth": [] }], "summary": "Delete or moderate a comment", "responses": { "204": { "description": "Comment deleted" } } } },
+    "/projects/{projectId}/tasks/{taskId}/attachments": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/TaskId" }],
+      "post": { "tags": ["Attachments"], "security": [{ "bearerAuth": [] }], "summary": "Create a five-minute presigned upload policy", "requestBody": { "$ref": "#/components/requestBodies/AttachmentCreate" }, "responses": { "201": { "$ref": "#/components/responses/Success" }, "400": { "$ref": "#/components/responses/Error" } } },
+      "get": { "tags": ["Attachments"], "security": [{ "bearerAuth": [] }], "summary": "List available task attachments", "responses": { "200": { "$ref": "#/components/responses/Success" } } }
+    },
+    "/projects/{projectId}/tasks/{taskId}/attachments/{attachmentId}/complete": { "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/TaskId" }, { "$ref": "#/components/parameters/AttachmentId" }], "post": { "tags": ["Attachments"], "security": [{ "bearerAuth": [] }], "summary": "Verify uploaded object metadata", "responses": { "200": { "$ref": "#/components/responses/Success" }, "400": { "$ref": "#/components/responses/Error" } } } },
+    "/projects/{projectId}/tasks/{taskId}/attachments/{attachmentId}/download": { "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/TaskId" }, { "$ref": "#/components/parameters/AttachmentId" }], "get": { "tags": ["Attachments"], "security": [{ "bearerAuth": [] }], "summary": "Create a short-lived download URL", "responses": { "200": { "$ref": "#/components/responses/Success" } } } },
+    "/projects/{projectId}/tasks/{taskId}/attachments/{attachmentId}": { "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/TaskId" }, { "$ref": "#/components/parameters/AttachmentId" }], "delete": { "tags": ["Attachments"], "security": [{ "bearerAuth": [] }], "summary": "Delete an attachment", "responses": { "204": { "description": "Attachment deleted" } } } },
+    "/notifications/events": { "get": { "tags": ["Notifications"], "security": [{ "bearerAuth": [] }], "summary": "Open an SSE stream for task notifications", "parameters": [{ "name": "Last-Event-ID", "in": "header", "schema": { "type": "string" } }], "responses": { "200": { "description": "Server-Sent Events stream", "content": { "text/event-stream": { "schema": { "type": "string" } } } }, "401": { "$ref": "#/components/responses/Error" } } } }
+  },
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } },
+    "parameters": {
+      "ProjectId": { "name": "projectId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "TaskId": { "name": "taskId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "UserId": { "name": "userId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "InvitationId": { "name": "invitationId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "CommentId": { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "AttachmentId": { "name": "attachmentId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "TaskStatus": { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "COMPLETED"] } },
+      "TaskAssignee": { "name": "assigneeId", "in": "query", "description": "UUID or `unassigned`", "schema": { "type": "string" } },
+      "TaskSearch": { "name": "search", "in": "query", "schema": { "type": "string", "minLength": 1, "maxLength": 200 } },
+      "TaskDueAfter": { "name": "dueAfter", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+      "TaskDueBefore": { "name": "dueBefore", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+      "TaskSortBy": { "name": "sortBy", "in": "query", "schema": { "type": "string", "enum": ["title", "status", "dueDate", "createdAt", "updatedAt"], "default": "createdAt" } },
+      "TaskSortOrder": { "name": "sortOrder", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"], "default": "desc" } },
+      "Page": { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+      "PageSize": { "name": "pageSize", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 } }
+    },
+    "requestBodies": {
+      "Register": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email", "password", "displayName"], "properties": { "email": { "type": "string", "format": "email" }, "password": { "type": "string", "minLength": 12, "maxLength": 72 }, "displayName": { "type": "string", "maxLength": 120 } }, "additionalProperties": false } } } },
+      "Login": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email", "password"], "properties": { "email": { "type": "string", "format": "email" }, "password": { "type": "string" } }, "additionalProperties": false } } } },
+      "ProfileUpdate": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["displayName"], "properties": { "displayName": { "type": "string", "minLength": 1, "maxLength": 120 } }, "additionalProperties": false } } } },
+      "ProjectCreate": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectCreateInput" } } } },
+      "ProjectUpdate": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectInput" } } } },
+      "MemberRole": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["role"], "properties": { "role": { "type": "string", "enum": ["ADMIN", "MEMBER"] } }, "additionalProperties": false } } } },
+      "Invitation": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email"], "properties": { "email": { "type": "string", "format": "email" } }, "additionalProperties": false } } } },
+      "TaskCreate": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskCreateInput" } } } },
+      "TaskUpdate": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskUpdateInput" } } } },
+      "Comment": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["body"], "properties": { "body": { "type": "string", "minLength": 1, "maxLength": 20000 } }, "additionalProperties": false } } } },
+      "AttachmentCreate": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["fileName", "contentType", "sizeBytes"], "properties": { "fileName": { "type": "string", "maxLength": 255 }, "contentType": { "type": "string" }, "sizeBytes": { "type": "integer", "minimum": 1, "maximum": 26214400 } }, "additionalProperties": false } } } }
+    },
+    "schemas": {
+      "ProjectCreateInput": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 160 }, "description": { "type": "string", "maxLength": 4000 } }, "additionalProperties": false },
+      "ProjectInput": { "type": "object", "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 160 }, "description": { "type": ["string", "null"], "maxLength": 4000 } }, "additionalProperties": false, "minProperties": 1 },
+      "TaskCreateInput": { "type": "object", "required": ["title"], "properties": { "title": { "type": "string", "minLength": 1, "maxLength": 200 }, "description": { "type": ["string", "null"], "maxLength": 20000 }, "dueDate": { "type": ["string", "null"], "format": "date-time" }, "assigneeId": { "type": ["string", "null"], "format": "uuid" } }, "additionalProperties": false },
+      "TaskUpdateInput": { "type": "object", "properties": { "title": { "type": "string", "minLength": 1, "maxLength": 200 }, "description": { "type": ["string", "null"], "maxLength": 20000 }, "dueDate": { "type": ["string", "null"], "format": "date-time" }, "assigneeId": { "type": ["string", "null"], "format": "uuid" }, "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "COMPLETED"] } }, "additionalProperties": false, "minProperties": 1 },
+      "Error": { "type": "object", "required": ["success", "error"], "properties": { "success": { "const": false }, "error": { "type": "object", "required": ["code", "message"], "properties": { "code": { "type": "string" }, "message": { "type": "string" } } } } }
+    },
+    "responses": {
+      "Success": { "description": "Successful response", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": { "const": true }, "data": {} } } } } },
+      "Error": { "description": "Request failed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+    }
+  }
+}

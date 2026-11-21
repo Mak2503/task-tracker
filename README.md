@@ -2,6 +2,8 @@
 
 A TypeScript and Express backend for collaborative task tracking. The implementation is being delivered in milestones; see [milestone.md](./milestone.md) for scope and progress.
 
+The complete HTTP contract is in [OpenAPI 3.1](./docs/openapi.json), with [request examples](./docs/examples.md). Deployment, backup, readiness, and smoke-test instructions are in [operations.md](./docs/operations.md).
+
 ## Requirements
 
 - Node.js 20 or later
@@ -93,7 +95,7 @@ Passwords are hashed with bcrypt. Access tokens are signed with HS256 and checke
 npm test
 ```
 
-The suite validates the Prisma schema, builds the TypeScript project, then runs the foundation, persistence, authentication, profile, project, membership, invitation, task, comment, attachment, and notification tests. Future milestones add tests for each feature before that milestone is considered complete.
+The suite validates the Prisma schema, builds the TypeScript project, then runs unit, API-contract, persistence, authentication, project, task, collaboration, and notification tests. The end-to-end database workflow is opt-in; see [operations.md](./docs/operations.md#end-to-end-smoke-test).
 
 ## Error response
 

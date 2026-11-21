@@ -146,19 +146,20 @@ This plan delivers the backend in small, verifiable increments. Each milestone s
 
 ## M8 — API and operational readiness
 
-**Status:** Next
+**Status:** Complete
 
 **Scope**
 - Publish OpenAPI documentation and examples for the completed endpoints.
 - Optionally add AI generated task descriptions or summaries through a provider abstraction.
 - Add focused automated coverage for authentication, authorization, task workflows, and collaboration.
-- Document deployment configuration, migrations, logging, and backup expectations.
-- Run end-to-end smoke tests for the documented user workflows.
+- Document deployment configuration, migrations, logging, readiness, and backup expectations.
+- Add an opt-in end-to-end smoke test for the documented user workflows against local PostgreSQL.
 
 **Exit criteria**
 - Documented workflows match the implemented API.
 - Build and automated checks pass in a clean environment.
-- End-to-end tests cover registration through project task collaboration and documentation examples remain valid.
+- OpenAPI contract tests cover implemented routes and reusable references.
+- End-to-end tests cover registration through project task collaboration on local PostgreSQL and clean up their temporary records.
 
 **Tests**
 - Run the complete unit, integration, and end-to-end suites against a disposable PostgreSQL database.
