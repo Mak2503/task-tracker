@@ -2,7 +2,7 @@
 
 A TypeScript and Express backend for collaborative task tracking. The implementation is being delivered in milestones; see [milestone.md](./milestone.md) for scope and progress.
 
-The complete HTTP contract is in [OpenAPI 3.1](./docs/openapi.json), with a [full API reference and per-endpoint request/response examples](./docs/api-reference.md) and [workflow examples](./docs/examples.md). Deployment, backup, readiness, and smoke-test instructions are in [operations.md](./docs/operations.md).
+The complete HTTP contract is in [OpenAPI 3.1](./docs/openapi.json), with a [full API reference and per-endpoint request/response examples](./docs/api-reference.md) and [workflow examples](./docs/examples.md). Follow the [demo data guide](./docs/demo-data.md) to seed a complete local sample workspace. Deployment, backup, readiness, and smoke-test instructions are in [operations.md](./docs/operations.md).
 
 ## Requirements
 

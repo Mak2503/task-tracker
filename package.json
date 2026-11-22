@@ -11,6 +11,7 @@
     "typecheck": "prisma generate && tsc --noEmit",
     "test": "prisma validate && npm run build && node --test dist/tests/*.test.js",
     "test:e2e": "npm run build && node --test dist/tests/m8-e2e.test.js",
+    "demo:seed": "npm run build && node dist/scripts/seed-demo.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy"
