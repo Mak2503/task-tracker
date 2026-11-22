@@ -2,7 +2,7 @@
 
 A TypeScript and Express backend for collaborative task tracking. The implementation is being delivered in milestones; see [milestone.md](./milestone.md) for scope and progress.
 
-The complete HTTP contract is in [OpenAPI 3.1](./docs/openapi.json), with [request examples](./docs/examples.md). Deployment, backup, readiness, and smoke-test instructions are in [operations.md](./docs/operations.md).
+The complete HTTP contract is in [OpenAPI 3.1](./docs/openapi.json), with a [full API reference and per-endpoint request/response examples](./docs/api-reference.md) and [workflow examples](./docs/examples.md). Deployment, backup, readiness, and smoke-test instructions are in [operations.md](./docs/operations.md).
 
 ## Requirements
 
@@ -38,7 +38,7 @@ The API listens on `http://localhost:3000` by default. PostgreSQL must be runnin
 | `OBJECT_STORAGE_ACCESS_KEY` / `OBJECT_STORAGE_SECRET_KEY` | local MinIO credentials | Credentials for the S3-compatible service |
 | `OBJECT_STORAGE_FORCE_PATH_STYLE` | `true` | Use path-style S3 requests for local MinIO; set `false` for AWS S3 |
 
-The local database target is PostgreSQL on port `5432`, database `postgres`. The example URL uses a placeholder password; replace it with your local PostgreSQL password. Generate and set `JWT_SECRET` before starting the API. Prisma migrations are stored under `prisma/migrations`; use `npm run db:migrate -- --name <migration-name>` during development and `npm run db:deploy` to apply committed migrations in deployment environments. `docker compose up -d` starts MinIO and creates the private local bucket `taskmaster`.
+The local database target is PostgreSQL on port `5432`, database `postgres`. The example URL uses a placeholder password; replace it with your local PostgreSQL password. Generate and set `JWT_SECRET` before starting the API. Prisma migrations are stored under `prisma/migrations`; use `npm run db:migrate -- --name <migration-name>` during development and `npm run db:deploy` to apply committed migrations in deployment environments. `docker compose up -d` starts MinIO and creates the private local bucket `taskmaster`. Compose uses Chainguard's public MinIO and `mc` client images because the former upstream MinIO registry images are no longer pullable without registry access; the S3 API and presigned POST flow remain the same.
 
 ## Data model
 

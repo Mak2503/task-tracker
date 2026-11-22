@@ -1,6 +1,6 @@
 services:
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-06T17-38-46Z
+    image: cgr.dev/chainguard/minio:latest
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: taskmaster-local
@@ -12,15 +12,13 @@ services:
       - minio-data:/data
 
   minio-init:
-    image: quay.io/minio/mc:RELEASE.2024-11-21T17-21-54Z
+    image: cgr.dev/chainguard/minio-client:latest
     depends_on:
       - minio
-    entrypoint: >
-      /bin/sh -c 'until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do sleep 1; done;
-      mc mb --ignore-existing local/taskmaster'
+    command: ["mb", "--ignore-existing", "local/taskmaster"]
     environment:
-      MINIO_ROOT_USER: taskmaster-local
-      MINIO_ROOT_PASSWORD: taskmaster-local-secret
+      MC_HOST_local: http://taskmaster-local:taskmaster-local-secret@minio:9000
+    restart: on-failure:10
 
 volumes:
   minio-data:
